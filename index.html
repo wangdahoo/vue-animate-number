@@ -11,7 +11,18 @@
 <body>
   <div id="app"></div>
   <script type="text/x-template" id="tpl">
-    <animate-number from="1" to="10" :formatter="formatter"></animate-number>
+    <div>
+      <p>
+        <animate-number from="1" to="10" :formatter="formatter"></animate-number>
+      </p>
+      <p>
+        <animate-number from="1" to="10"></animate-number>
+      </p>
+      <p>
+        <animate-number ref="myNum" from="0" to="10" mode="manual" :formatter="formatter"></animate-number><br>
+        <button type="button" @click="startAnimate()"> animate! </button>
+      </p>
+    </div>
   </script>
   <script>
     new Vue({
@@ -19,6 +30,10 @@
       methods: {
         formatter: function (num) {
           return num.toFixed(2)
+        },
+
+        startAnimate: function () {
+          this.$refs.myNum.start()
         }
       }
     }).$mount('#app')
