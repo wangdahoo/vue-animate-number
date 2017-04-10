@@ -46,6 +46,18 @@
           return v === AUTO || v === MANUAL
         },
         default: AUTO
+      },
+
+      animateEnd: Function
+    },
+
+    computed: {
+      _from: function () {
+        return this.from
+      },
+
+      _to: function () {
+        return this.to
       }
     },
 
@@ -61,9 +73,9 @@
       this.makeOptions()
       if (this.mode === AUTO) this.start()
       if (this.mode === MANUAL) {
-        typeof this.from === 'string'
-          ? this.num = this.formatter(parseFloat(this.from))
-          : this.num = this.formatter(this.from)
+        typeof this._from === 'string'
+          ? this.num = this.formatter(parseFloat(this._from))
+          : this.num = this.formatter(this._from)
       }
     },
 
@@ -75,22 +87,22 @@
       },
 
       makeOptions () {
-        let _from = typeof this.from === 'string'
-        ? { x: parseFloat(this.from) }
-        : { x: this.from }
+        let from = typeof this._from === 'string'
+          ? { x: parseFloat(this._from) }
+          : { x: this._from }
 
-        let _to = typeof this.to === 'string'
-          ? { x: parseFloat(this.to) }
-          : { x: this.to }
+        let to = typeof this._to === 'string'
+          ? { x: parseFloat(this._to) }
+          : { x: this._to }
 
-        let _dur = typeof this.duration === 'string'
+        let duration = typeof this.duration === 'string'
           ? parseFloat(this.duration)
           : this.duration
 
         this.options = {
-          from: _from,
-          to: _to,
-          duration: _dur,
+          from: from,
+          to: to,
+          duration: duration,
           easing: this.easing,
           step: this.updateNumber
         }
@@ -99,7 +111,20 @@
       start () {
         if (this.state > 0) return
         this.state = 1
-        shifty.tween(this.options).then(this.updateNumber)
+        shifty.tween(this.options).then(this.updateNumber).then(() => {
+          this.state = 0
+          if (this.animateEnd) this.animateEnd(parseFloat(this.num))
+        })
+      },
+
+      reset (from, to) {
+        this.options.from = typeof from === 'string'
+          ? { x: parseFloat(from) }
+          : { x: from }
+
+        this.options.to = typeof to === 'string'
+          ? { x: parseFloat(to) }
+          : { x: to }
       }
     }
   }

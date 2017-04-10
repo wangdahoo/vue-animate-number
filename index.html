@@ -27,6 +27,7 @@
       border-radius: 4px;
       outline: none;
       -webkit-outline: none;
+      margin: 10px 0;
     }
 
     button:active {
@@ -35,6 +36,17 @@
 
     h3 {
       color: #ec4949;
+    }
+
+    p {
+      border-bottom: 1px solid #eee;
+      padding: 10px;
+      margin: 0;
+    }
+
+    .divider {
+      width: 100%;
+      height: 20px;
     }
   </style>
 </head>
@@ -49,20 +61,43 @@
       <p>
         <animate-number from="1" to="10" :formatter="formatter"></animate-number>
       </p>
+
+      <div class="divider"></div>
+
       <p>
         <animate-number from="1" to="10" easing="linear"></animate-number>
       </p>
+
+
+      <div class="divider"></div>
+
       <p>
         <animate-number ref="myNum" from="0" to="10" mode="manual" :formatter="formatter"></animate-number>
-      </p>
-      <p>
+        <br>
         <button type="button" @click="startAnimate()"> click to start! </button>
       </p>
+
+      <div class="divider"></div>
+
+      <p>
+        <animate-number ref="mySum" :from="from" :to="to" mode="manual"
+          :formatter="formatter" :animate-end="accumlateEnd"></animate-number>
+        <br>
+        <button type="button" @click="accumlate()"> click to accumlate! </button>
+      </p>
+
+      <div class="divider"></div>
     </div>
   </script>
   <script>
     new Vue({
       template: '#tpl',
+
+      data: {
+        from: 0,
+        to: 10
+      },
+
       methods: {
         formatter: function (num) {
           return num.toFixed(2)
@@ -70,6 +105,14 @@
 
         startAnimate: function () {
           this.$refs.myNum.start()
+        },
+
+        accumlate: function () {
+          this.$refs.mySum.start()
+        },
+
+        accumlateEnd: function (end) {
+          this.$refs.mySum.reset(end, end + 10)
         }
       }
     }).$mount('#app')

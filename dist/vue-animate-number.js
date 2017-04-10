@@ -65,6 +65,18 @@ var AnimateNumber = { render: function render() {
         return v === AUTO || v === MANUAL;
       },
       default: AUTO
+    },
+
+    animateEnd: Function
+  },
+
+  computed: {
+    _from: function _from() {
+      return this.from;
+    },
+
+    _to: function _to() {
+      return this.to;
     }
   },
 
@@ -79,7 +91,7 @@ var AnimateNumber = { render: function render() {
     this.makeOptions();
     if (this.mode === AUTO) this.start();
     if (this.mode === MANUAL) {
-      typeof this.from === 'string' ? this.num = this.formatter(parseFloat(this.from)) : this.num = this.formatter(this.from);
+      typeof this._from === 'string' ? this.num = this.formatter(parseFloat(this._from)) : this.num = this.formatter(this._from);
     }
   },
 
@@ -89,24 +101,34 @@ var AnimateNumber = { render: function render() {
       this.num = this.formatter ? this.formatter(state.x) : state.x;
     },
     makeOptions: function makeOptions() {
-      var _from = typeof this.from === 'string' ? { x: parseFloat(this.from) } : { x: this.from };
+      var from = typeof this._from === 'string' ? { x: parseFloat(this._from) } : { x: this._from };
 
-      var _to = typeof this.to === 'string' ? { x: parseFloat(this.to) } : { x: this.to };
+      var to = typeof this._to === 'string' ? { x: parseFloat(this._to) } : { x: this._to };
 
-      var _dur = typeof this.duration === 'string' ? parseFloat(this.duration) : this.duration;
+      var duration = typeof this.duration === 'string' ? parseFloat(this.duration) : this.duration;
 
       this.options = {
-        from: _from,
-        to: _to,
-        duration: _dur,
+        from: from,
+        to: to,
+        duration: duration,
         easing: this.easing,
         step: this.updateNumber
       };
     },
     start: function start() {
+      var _this = this;
+
       if (this.state > 0) return;
       this.state = 1;
-      shifty_1.tween(this.options).then(this.updateNumber);
+      shifty_1.tween(this.options).then(this.updateNumber).then(function () {
+        _this.state = 0;
+        if (_this.animateEnd) _this.animateEnd(parseFloat(_this.num));
+      });
+    },
+    reset: function reset(from, to) {
+      this.options.from = typeof from === 'string' ? { x: parseFloat(from) } : { x: from };
+
+      this.options.to = typeof to === 'string' ? { x: parseFloat(to) } : { x: to };
     }
   }
 };
