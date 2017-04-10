@@ -1,5 +1,6 @@
 <template>
-  <span v-if="num != undefined" v-text="num"></span>
+  <span v-if="num != undefined" v-text="num"
+    :style="numColor"></span>
 </template>
 <script>
   import shifty from './shifty'
@@ -8,11 +9,35 @@
 
   const RE_FLOAT = /^\d+(\.\d+)?$/
   const RE_INT = /^\[1-9][0-9]*$/
+  const RE_COLOR = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/
 
   const isNumber = (v) => {
     return typeof v === 'number' || (
       typeof v === 'string' && (RE_FLOAT.test(v) || RE_INT.test(v))
     )
+  }
+
+  const isColor = (v) => {
+    return RE_COLOR.test(v)
+  }
+
+  const hexToRGB = (hex) => {
+    hex = hex.replace('#', '')
+    if (hex.length === 3) {
+      hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`
+    }
+
+    return {
+      r: parseInt(hex.substr(0, 2), 16),
+      g: parseInt(hex.substr(2, 2), 16),
+      b: parseInt(hex.substr(4, 2), 16)
+    }
+  }
+
+  const extend = (target, source) => {
+    for (let k in source) {
+      target[k] = source[k]
+    }
   }
 
   export default {
@@ -47,8 +72,15 @@
         },
         default: AUTO
       },
-
-      animateEnd: Function
+      animateEnd: Function,
+      fromColor: {
+        type: String,
+        validator: isColor
+      },
+      toColor: {
+        type: String,
+        validator: isColor
+      }
     },
 
     computed: {
@@ -58,6 +90,14 @@
 
       _to: function () {
         return this.to
+      },
+
+      _fromColor: function () {
+        return this.fromColor
+      },
+
+      _toColor: function () {
+        return this.toColor
       }
     },
 
@@ -65,7 +105,8 @@
       return {
         num: undefined,
         options: undefined,
-        state: 0 // 0: stop, 1: animation started
+        state: 0, // 0: stop, 1: animation started
+        numColor: {}
       }
     },
 
@@ -76,6 +117,11 @@
         typeof this._from === 'string'
           ? this.num = this.formatter(parseFloat(this._from))
           : this.num = this.formatter(this._from)
+
+        if (this._fromColor && this._toColor) {
+          let {r, g, b} = hexToRGB(this._fromColor)
+          this.numColor = { color: `rgb(${parseInt(r)}, ${parseInt(g)}, ${parseInt(b)})` }
+        }
       }
     },
 
@@ -84,6 +130,8 @@
         this.num = this.formatter
           ? this.formatter(state.x)
           : state.x
+
+        this.numColor = { color: `rgb(${parseInt(state.r)}, ${parseInt(state.g)}, ${parseInt(state.b)})` }
       },
 
       makeOptions () {
@@ -94,6 +142,13 @@
         let to = typeof this._to === 'string'
           ? { x: parseFloat(this._to) }
           : { x: this._to }
+
+        if (this._fromColor && this._toColor) {
+          let fromRGB = hexToRGB(this._fromColor)
+          extend(from, fromRGB)
+          let toRGB = hexToRGB(this._toColor)
+          extend(to, toRGB)
+        }
 
         let duration = typeof this.duration === 'string'
           ? parseFloat(this.duration)
@@ -117,7 +172,7 @@
         })
       },
 
-      reset (from, to) {
+      reset (from, to, fromColor, toColor) {
         this.options.from = typeof from === 'string'
           ? { x: parseFloat(from) }
           : { x: from }
@@ -125,6 +180,13 @@
         this.options.to = typeof to === 'string'
           ? { x: parseFloat(to) }
           : { x: to }
+
+        if (fromColor && isColor(fromColor) && toColor && isColor(toColor)) {
+          let fromRGB = hexToRGB(fromColor)
+          extend(this.options.from, fromRGB)
+          let toRGB = hexToRGB(toColor)
+          extend(this.options.to, toRGB)
+        }
       }
     }
   }

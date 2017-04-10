@@ -71,6 +71,7 @@
 
       <div class="divider"></div>
 
+      <!-- basic -->
       <p>
         <animate-number ref="myNum" from="0" to="10" mode="manual" :formatter="formatter"></animate-number>
         <br>
@@ -79,14 +80,35 @@
 
       <div class="divider"></div>
 
+      <!-- accumulate -->
       <p>
         <animate-number ref="mySum" :from="from" :to="to" mode="manual"
-          :formatter="formatter" :animate-end="accumlateEnd"></animate-number>
+          :formatter="formatter" :animate-end="accumulateEnd"></animate-number>
         <br>
-        <button type="button" @click="accumlate()"> click to accumlate! </button>
+        <button type="button" @click="accumulate()"> click to accumlate! </button>
       </p>
 
       <div class="divider"></div>
+
+      <!-- gradient -->
+      <p>
+        <animate-number ref="myGradient" mode="manual"
+          from="0" to="10" from-color="#44CC00" to-color="#ec4949" :formatter="formatter"></animate-number>
+        <br>
+        <button type="button" @click="startGradient()"> click to gradient! </button>
+      </p>
+
+      <div class="divider"></div>
+
+      <!-- accumulate & gradient -->
+      <p>
+        <animate-number ref="myGradientSum" mode="manual"
+          :from="from" :to="to" from-color="#44CC00" to-color="#ec4949"
+          :formatter="formatter" :animate-end="reverseGradient"></animate-number>
+        <br>
+        <button type="button" @click="accumulateAndGradient()"> click to accumlate and gradient! </button>
+      </p>
+
     </div>
   </script>
   <script>
@@ -103,16 +125,36 @@
           return num.toFixed(2)
         },
 
+        // basic
         startAnimate: function () {
           this.$refs.myNum.start()
         },
 
-        accumlate: function () {
+        // accumulate
+        accumulate: function () {
           this.$refs.mySum.start()
         },
 
-        accumlateEnd: function (end) {
+        accumulateEnd: function (end) {
           this.$refs.mySum.reset(end, end + 10)
+        },
+
+        // case 3
+        startGradient: function () {
+          this.$refs.myGradient.start()
+        },
+
+        // case 4
+        accumulateAndGradient: function () {
+          this.$refs.myGradientSum.start()
+        },
+
+        reverseGradient: function (end) {
+          if (end / 10 % 2 === 0) {
+            this.$refs.myGradientSum.reset(end, end + 10, '#44CC00', '#EC4949')
+          } else {
+            this.$refs.myGradientSum.reset(end, end + 10, '#EC4949', '#44CC00')
+          }
         }
       }
     }).$mount('#app')

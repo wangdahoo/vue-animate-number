@@ -27,13 +27,37 @@ var AUTO = 'auto';
 
 var RE_FLOAT = /^\d+(\.\d+)?$/;
 var RE_INT = /^\[1-9][0-9]*$/;
+var RE_COLOR = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/;
 
 var isNumber = function isNumber(v) {
   return typeof v === 'number' || typeof v === 'string' && (RE_FLOAT.test(v) || RE_INT.test(v));
 };
 
+var isColor = function isColor(v) {
+  return RE_COLOR.test(v);
+};
+
+var hexToRGB = function hexToRGB(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) {
+    hex = '' + hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+
+  return {
+    r: parseInt(hex.substr(0, 2), 16),
+    g: parseInt(hex.substr(2, 2), 16),
+    b: parseInt(hex.substr(4, 2), 16)
+  };
+};
+
+var extend = function extend(target, source) {
+  for (var k in source) {
+    target[k] = source[k];
+  }
+};
+
 var AnimateNumber = { render: function render() {
-    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _vm.num != undefined ? _c('span', { domProps: { "textContent": _vm._s(_vm.num) } }) : _vm._e();
+    var _vm = this;var _h = _vm.$createElement;var _c = _vm._self._c || _h;return _vm.num != undefined ? _c('span', { style: _vm.numColor, domProps: { "textContent": _vm._s(_vm.num) } }) : _vm._e();
   }, staticRenderFns: [],
   props: {
     from: {
@@ -66,8 +90,15 @@ var AnimateNumber = { render: function render() {
       },
       default: AUTO
     },
-
-    animateEnd: Function
+    animateEnd: Function,
+    fromColor: {
+      type: String,
+      validator: isColor
+    },
+    toColor: {
+      type: String,
+      validator: isColor
+    }
   },
 
   computed: {
@@ -77,6 +108,14 @@ var AnimateNumber = { render: function render() {
 
     _to: function _to() {
       return this.to;
+    },
+
+    _fromColor: function _fromColor() {
+      return this.fromColor;
+    },
+
+    _toColor: function _toColor() {
+      return this.toColor;
     }
   },
 
@@ -84,7 +123,8 @@ var AnimateNumber = { render: function render() {
     return {
       num: undefined,
       options: undefined,
-      state: 0 // 0: stop, 1: animation started
+      state: 0, // 0: stop, 1: animation started
+      numColor: {}
     };
   },
   mounted: function mounted() {
@@ -92,6 +132,15 @@ var AnimateNumber = { render: function render() {
     if (this.mode === AUTO) this.start();
     if (this.mode === MANUAL) {
       typeof this._from === 'string' ? this.num = this.formatter(parseFloat(this._from)) : this.num = this.formatter(this._from);
+
+      if (this._fromColor && this._toColor) {
+        var _hexToRGB = hexToRGB(this._fromColor),
+            r = _hexToRGB.r,
+            g = _hexToRGB.g,
+            b = _hexToRGB.b;
+
+        this.numColor = { color: 'rgb(' + parseInt(r) + ', ' + parseInt(g) + ', ' + parseInt(b) + ')' };
+      }
     }
   },
 
@@ -99,11 +148,20 @@ var AnimateNumber = { render: function render() {
   methods: {
     updateNumber: function updateNumber(state) {
       this.num = this.formatter ? this.formatter(state.x) : state.x;
+
+      this.numColor = { color: 'rgb(' + parseInt(state.r) + ', ' + parseInt(state.g) + ', ' + parseInt(state.b) + ')' };
     },
     makeOptions: function makeOptions() {
       var from = typeof this._from === 'string' ? { x: parseFloat(this._from) } : { x: this._from };
 
       var to = typeof this._to === 'string' ? { x: parseFloat(this._to) } : { x: this._to };
+
+      if (this._fromColor && this._toColor) {
+        var fromRGB = hexToRGB(this._fromColor);
+        extend(from, fromRGB);
+        var toRGB = hexToRGB(this._toColor);
+        extend(to, toRGB);
+      }
 
       var duration = typeof this.duration === 'string' ? parseFloat(this.duration) : this.duration;
 
@@ -125,10 +183,17 @@ var AnimateNumber = { render: function render() {
         if (_this.animateEnd) _this.animateEnd(parseFloat(_this.num));
       });
     },
-    reset: function reset(from, to) {
+    reset: function reset(from, to, fromColor, toColor) {
       this.options.from = typeof from === 'string' ? { x: parseFloat(from) } : { x: from };
 
       this.options.to = typeof to === 'string' ? { x: parseFloat(to) } : { x: to };
+
+      if (fromColor && isColor(fromColor) && toColor && isColor(toColor)) {
+        var fromRGB = hexToRGB(fromColor);
+        extend(this.options.from, fromRGB);
+        var toRGB = hexToRGB(toColor);
+        extend(this.options.to, toRGB);
+      }
     }
   }
 };
