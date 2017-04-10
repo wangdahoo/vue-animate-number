@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Animate Number</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/demo.css" rel="stylesheet">
+  <script src="//unpkg.qkcdn.com/vue@2.2.6/dist/vue.min.js"></script>
+  <script src="/dist/vue-animate-number.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="text/x-template" id="tpl">
+    <animate-number from="1" to="10" :formatter="formatter"></animate-number>
+  </script>
+  <script>
+    new Vue({
+      template: '#tpl',
+      methods: {
+        formatter: function (num) {
+          return num.toFixed(2)
+        }
+      }
+    }).$mount('#app')
+  </script>
+</body>
+</html>

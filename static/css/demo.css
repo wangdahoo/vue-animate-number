@@ -1,0 +1,11 @@
+body {
+  padding: 40px 0;
+  text-align: center;
+}
+
+#num {
+  font-size: 36px;
+  color: #ec4949;
+  background: #f4f4f4;
+  padding: 0 20px;
+}
