@@ -1,5 +1,7 @@
 # Animate Number
 
+## [Demo](https://wangdahoo.github.io/vue-animate-number/)
+
 ## How to Use
 
 #### install
