@@ -55,3 +55,29 @@ Vue.use(VueAnimateNumber)
 ```
 
 > more `easing` effects: https://github.com/jeremyckahn/shifty/blob/master/src/easing-functions.js
+
+> more examples: https://github.com/wangdahoo/vue-animate-number/blob/master/index.html
+
+
+## API
+```html
+<animate-number 
+  mode="auto"
+  duration="1000"
+  :from="from" 
+  :to="to"
+  from-color="#44CC00" 
+  to-color="#ec4949"
+  :formatter="formatter" 
+  :animate-end="animateEnd">
+</animate-number>
+```
+| prop name | type | description | default | required |
+|-----|-----|-----|-----|-----|
+| mode | string | `auto` or `manual`, trigger animation immediately or not | `auto` | N |
+| from | number | value, at which animate starts | - | Y |
+| to | number | value, at which animate ends | - | Y |
+| fromColor | string | start color for gradient, in hex format | - | N |
+| toColor | string | end color for gradient, in hex format | - | N |
+| formatter | Function | value formatter for number in every step during the animation  | `parseInt` | N |
+| animateEnd | Function | callback after animation | - | N |
