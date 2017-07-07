@@ -163,9 +163,13 @@
         }
       },
 
-      start () {
+      start (options) {
         if (this.state > 0) return
         this.state = 1
+
+        if (options) extend(this.options, options)
+        if (this.options.duration === 0) this.options.duration = 1
+
         shifty.tween(this.options).then(this.updateNumber).then(() => {
           this.state = 0
           if (this.animateEnd) this.animateEnd(parseFloat(this.num))
