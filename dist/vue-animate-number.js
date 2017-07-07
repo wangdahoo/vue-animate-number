@@ -173,11 +173,15 @@ var AnimateNumber = { render: function render() {
         step: this.updateNumber
       };
     },
-    start: function start() {
+    start: function start(options) {
       var _this = this;
 
       if (this.state > 0) return;
       this.state = 1;
+
+      if (options) extend(this.options, options);
+      if (this.options.duration === 0) this.options.duration = 1;
+
       shifty_1.tween(this.options).then(this.updateNumber).then(function () {
         _this.state = 0;
         if (_this.animateEnd) _this.animateEnd(parseFloat(_this.num));
